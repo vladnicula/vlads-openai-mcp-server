@@ -21,7 +21,7 @@ A Model Context Protocol (MCP) server that enables Claude Code to interact with 
 
 1. Clone or navigate to the project directory:
    ```bash
-   cd /Users/vladnicula/Projects/mcp-servers/vlads-openai-mcp-server
+   cd /path/to/vlads-openai-mcp-server
    ```
 
 2. Install dependencies:
@@ -29,10 +29,10 @@ A Model Context Protocol (MCP) server that enables Claude Code to interact with 
    npm install
    ```
 
-3. Create environment configuration:
+3. Create environment configuration (for local testing only):
    ```bash
    cp .env.example .env
-   # Edit .env and add your OpenAI API key
+   # Edit .env and add your OpenAI API key - only needed for MCP Inspector testing
    ```
 
 4. Build the project:
@@ -52,14 +52,14 @@ OPENAI_API_KEY=sk-your-openai-api-key-here
 
 ### Claude Code Configuration
 
-Add to your Claude Code MCP configuration:
+Add to your Claude Code MCP configuration (typically in `~/.claude.json`):
 
 ```json
 {
   "mcpServers": {
     "openai-multi": {
       "command": "node",
-      "args": ["/Users/vladnicula/Projects/mcp-servers/vlads-openai-mcp-server/build/index.js"],
+      "args": ["/path/to/vlads-openai-mcp-server/build/index.js"],
       "env": {
         "OPENAI_API_KEY": "sk-your-openai-api-key-here"
       }
@@ -67,6 +67,8 @@ Add to your Claude Code MCP configuration:
   }
 }
 ```
+
+**Note**: Adding this configuration to the root `mcpServers` object will make it available in all instances of Claude Code.
 
 ## Usage
 
