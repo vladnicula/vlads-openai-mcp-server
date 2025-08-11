@@ -1,12 +1,8 @@
 import OpenAI from "openai";
-import type { ChatInput, ChatResponse } from "./schemas/index.js";
+import type { ChatInput } from "./schemas/index.js";
 
 export class OpenAIAPIError extends Error {
-  constructor(
-    public code: string,
-    message: string,
-    public status?: number
-  ) {
+  constructor(public code: string, message: string, public status?: number) {
     super(message);
     this.name = "OpenAIAPIError";
   }
@@ -18,54 +14,39 @@ export class OpenAIClient {
   constructor(apiKey: string) {
     this.client = new OpenAI({
       apiKey,
-      timeout: 30000, // 30 seconds timeout
+      timeout: 5 * 60 * 1000, // 5 minutes timeout
     });
   }
 
-  async chat(params: ChatInput): Promise<ChatResponse> {
+  async chat(params: ChatInput) {
     try {
-      const { model, input, instructions, reasoning, max_tokens } = params;
+      const { model, input, instructions, reasoning, max_tokens, text } =
+        params;
 
-      // Build request parameters for Responses API
-      const requestParams: any = {
+      console.error(
+        `[INFO] Making OpenAI responses request for model: ${model}`
+      );
+
+      // Use the official responses.create method as shown in docs
+      const response = await this.client.responses.create({
         model,
         input,
         ...(instructions && { instructions }),
         ...(reasoning && { reasoning }),
         ...(max_tokens && { max_tokens }),
-      };
-
-      console.error(`[INFO] Making OpenAI responses request for model: ${model}`);
-
-      // Use the responses endpoint instead of chat completions
-      const response = await this.client.post('/v1/responses', {
-        body: requestParams,
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        ...(text && { text }),
       });
 
-      const responseData = await response.json();
+      // Extract content from the response using output_text convenience property
+      const content = response.output_text || "";
 
-      // Extract content from the new response format
-      const content = responseData.output_text || 
-                     (responseData.output && responseData.output.length > 0 ? 
-                      responseData.output[0]?.text || "" : "");
+      console.error(
+        `[INFO] OpenAI response received. Tokens: ${
+          response.usage?.total_tokens || "unknown"
+        }`
+      );
 
-      const chatResponse = {
-        content,
-        model: responseData.model || model,
-        usage: responseData.usage ? {
-          prompt_tokens: responseData.usage.prompt_tokens,
-          completion_tokens: responseData.usage.completion_tokens,
-          total_tokens: responseData.usage.total_tokens,
-        } : undefined,
-        output: responseData.output,
-      };
-
-      console.error(`[INFO] OpenAI response received. Tokens: ${responseData.usage?.total_tokens || 'unknown'}`);
-
-      return chatResponse;
+      return content;
     } catch (error) {
       console.error("[ERROR] OpenAI API error:", error);
 
@@ -84,10 +65,7 @@ export class OpenAIClient {
         );
       }
 
-      throw new OpenAIAPIError(
-        "unknown_error",
-        "An unexpected error occurred"
-      );
+      throw new OpenAIAPIError("unknown_error", "An unexpected error occurred");
     }
   }
 }

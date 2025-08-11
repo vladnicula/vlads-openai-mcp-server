@@ -12,6 +12,7 @@ This is an OpenAI Multi-Model MCP (Model Context Protocol) server that enables C
 - `npm run dev` - Run in development mode with hot reload using tsx
 - `npm run build` - Build TypeScript to JavaScript in `build/` directory and make executable
 - `npm start` - Run the built version from `build/index.js`
+- When making changes, `npm run build` to check for errors and fix them
 
 ### Testing
 - `npm run test` - Run tests using Vitest
@@ -42,10 +43,10 @@ This is an OpenAI Multi-Model MCP (Model Context Protocol) server that enables C
 
 **Schema Validation (`src/schemas/index.ts`)**
 - Zod-based validation for all inputs and outputs
-- Type-safe input handling (string or message array)
+- Type-safe input handling (string only)
 - Message roles: `developer`, `user`, `assistant`
-- Reasoning effort validation: `low`, `medium`, `high`
-- Input union type supports both simple strings and message arrays
+- Reasoning effort validation: `minimal`, `low`, `medium`, `high`
+- Input parameter accepts only strings
 
 **Environment Utilities (`src/utils/env.ts`)**
 - Environment variable validation on startup
@@ -61,7 +62,7 @@ This is an OpenAI Multi-Model MCP (Model Context Protocol) server that enables C
 **Type Safety**
 - Full TypeScript coverage with strict configuration
 - Zod schemas provide runtime validation matching TypeScript types
-- Input parameter supports both string and message array types
+- Input parameter accepts only string type
 - Reasoning effort parameter validation for GPT-5 optimization
 
 **Tool Implementation Pattern**
@@ -80,11 +81,11 @@ Required environment variable:
 
 **openai_chat Tool (Uses Responses API)**
 - Supports `gpt-5` and `gpt-5-mini` models
-- Parameters: model, input (string or message array), instructions, reasoning.effort, max_tokens
-- Message roles: `developer`, `user`, `assistant` (not `system`)
+- Parameters: model, input (string only), instructions, reasoning.effort, text.verbosity, max_tokens
 - Uses `/v1/responses` endpoint instead of chat completions
-- Returns response from `output` array with `output_text` convenience property
-- **No temperature or verbosity parameters** (not supported in Responses API)
+- Returns response from `output_text` convenience property
+- Reasoning effort options: `minimal`, `low`, `medium`, `high`
+- Verbosity options: `low`, `medium`, `high` (nested under `text` parameter)
 
 ## Development Notes
 
@@ -94,5 +95,10 @@ Required environment variable:
 - MCP Inspector available for testing tool definitions and parameters
 - Comprehensive logging to stderr for debugging MCP communication
 - **CRITICAL**: Uses OpenAI Responses API, not Chat Completions API
-- Input can be either a string or array of messages with `developer`/`user`/`assistant` roles
+- Input accepts only string type (no message arrays)
 - No temperature parameter support in Responses API
+- Verbosity control available via `text.verbosity` parameter
+
+## TypeScript Best Practices
+
+- Don't cast to `any` when writing TypeScript code

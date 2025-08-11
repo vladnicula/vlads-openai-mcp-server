@@ -16,33 +16,8 @@ export const openaiChatTool: Tool = {
         description: "Model to use. GPT-5 for best performance, GPT-5-mini for faster/cheaper responses",
       },
       input: {
-        oneOf: [
-          {
-            type: "string",
-            description: "Simple text input"
-          },
-          {
-            type: "array",
-            items: {
-              type: "object",
-              properties: {
-                role: { 
-                  type: "string", 
-                  enum: ["developer", "user", "assistant"],
-                  description: "Message role"
-                },
-                content: { 
-                  type: "string",
-                  description: "Message content"
-                },
-              },
-              required: ["role", "content"],
-            },
-            description: "Array of messages in the conversation",
-            minItems: 1,
-          }
-        ],
-        description: "Input for the model - can be a string or array of messages"
+        type: "string",
+        description: "Text input for the model"
       },
       instructions: {
         type: "string",
@@ -53,12 +28,24 @@ export const openaiChatTool: Tool = {
         properties: {
           effort: {
             type: "string",
-            enum: ["low", "medium", "high"],
+            enum: ["minimal", "low", "medium", "high"],
             description: "Level of reasoning effort to apply"
           }
         },
         required: ["effort"],
         description: "Reasoning configuration (optional)"
+      },
+      text: {
+        type: "object",
+        properties: {
+          verbosity: {
+            type: "string",
+            enum: ["low", "medium", "high"],
+            description: "Response verbosity level"
+          }
+        },
+        required: ["verbosity"],
+        description: "Text generation configuration (optional)"
       },
       max_tokens: {
         type: "number",
@@ -88,9 +75,7 @@ export async function handleOpenAIChat(args: unknown): Promise<CallToolResult> {
         type: "text",
         text: JSON.stringify({
           success: true,
-          response: response.content,
-          model: response.model,
-          usage: response.usage,
+          response: response,
         }, null, 2),
       }],
     };
