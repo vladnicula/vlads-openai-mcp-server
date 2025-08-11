@@ -1,0 +1,33 @@
+{
+  "name": "@vladnicula/openai-mcp-server",
+  "version": "1.0.0",
+  "description": "MCP server for OpenAI GPT-5 and GPT-5-mini integration",
+  "type": "module",
+  "main": "build/index.js",
+  "bin": {
+    "vlads-openai-mcp-server": "./build/index.js"
+  },
+  "scripts": {
+    "build": "tsc && shx chmod +x build/*.js",
+    "start": "node build/index.js",
+    "dev": "tsx src/index.ts",
+    "inspector": "npm run build && npx @modelcontextprotocol/inspector ./build/index.js",
+    "test": "vitest",
+    "test:ui": "vitest --ui"
+  },
+  "keywords": ["mcp", "openai", "gpt-5", "claude-code"],
+  "author": "Vlad Nicula",
+  "license": "MIT",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.4",
+    "openai": "^4.71.0",
+    "shx": "^0.4.0",
+    "zod": "^3.25.67"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2",
+    "vitest": "^2.1.8"
+  }
+}
